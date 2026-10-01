@@ -7,9 +7,6 @@ workflows:
       app_store_connect: voltage-key
     environment:
       xcode: latest
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.watchvoltage.app
     scripts:
       - name: Set build number
         script: |
@@ -21,7 +18,12 @@ workflows:
       - name: Generate Xcode project
         script: xcodegen generate
       - name: Set up code signing
-        script: xcode-project use-profiles
+        script: |
+          keychain initialize
+          ssh-keygen -t rsa -b 2048 -m PEM -f /tmp/cert_key -q -N ""
+          app-store-connect fetch-signing-files "com.watchvoltage.app" --type IOS_APP_STORE --create --certificate-key @file:/tmp/cert_key
+          keychain add-certificates
+          xcode-project use-profiles
       - name: Build ipa
         script: xcode-project build-ipa --project "Voltage.xcodeproj" --scheme "Voltage"
     artifacts:
