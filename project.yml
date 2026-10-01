@@ -6,7 +6,7 @@ targets:
     type: application
     platform: iOS
     deploymentTarget: "16.0"
-    sources: [App]
+    sources: [HomeView.swift, Theme.swift, VoltageApp.swift]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.voltage.app
