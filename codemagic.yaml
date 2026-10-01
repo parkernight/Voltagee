@@ -13,6 +13,8 @@ workflows:
     scripts:
       - name: Set build number
         script: sed -i '' "s/CURRENT_PROJECT_VERSION: \"1\"/CURRENT_PROJECT_VERSION: \"$BUILD_NUMBER\"/" project.yml
+      - name: Make app icon
+        script: python3 make_icon.py
       - name: Install XcodeGen
         script: brew install xcodegen
       - name: Generate Xcode project
