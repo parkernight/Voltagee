@@ -65,57 +65,62 @@ struct HeroView: View {
     let show: Show
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            Color.vBackground
-            AsyncImage(url: show.imageURL) { phase in
-                if let img = phase.image {
-                    img.resizable().scaledToFill()
-                } else {
-                    Color.clear
+        Color.vBackground
+            .frame(maxWidth: .infinity)
+            .frame(height: 520)
+            .overlay(
+                AsyncImage(url: show.imageURL) { phase in
+                    if let img = phase.image {
+                        img.resizable().scaledToFill()
+                    } else {
+                        Color.clear
+                    }
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: 520)
+            )
             .clipped()
-            LinearGradient(colors: [.clear, Color.vBackground.opacity(0.85), .vBackground],
-                           startPoint: .center, endPoint: .bottom)
-            VStack(alignment: .leading, spacing: 14) {
-                Label("\(show.channel.uppercased()) — \((show.isMovie ?? false) ? "FILM" : "SERIES")", systemImage: "bolt.fill")
-                    .font(.caption.weight(.bold)).tracking(3)
-                    .foregroundColor(.vAccent)
-                    .padding(.horizontal, 12).padding(.vertical, 8)
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.vAccent.opacity(0.4), lineWidth: 1))
-                Text(show.title.uppercased())
-                    .font(.vTitle(52)).tracking(3).foregroundColor(.white).lineLimit(3)
-                HStack(spacing: 8) {
-                    Image(systemName: "star.fill").foregroundColor(.vAccent)
-                    Text(show.ratingText)
-                    Text(String(show.year))
-                    if let rt = show.runtime, !rt.isEmpty { Text(rt) }
-                    Text(show.genre).padding(.horizontal, 8).padding(.vertical, 3)
-                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.vAccent.opacity(0.5), lineWidth: 1))
-                }
-                .font(.system(size: 15)).foregroundColor(.vMuted)
-                Text(show.desc)
-                    .font(.system(size: 15)).foregroundColor(.vMuted).lineLimit(4)
-                HStack(spacing: 12) {
-                    Button { } label: {
-                        Label("Play", systemImage: "play.fill")
-                            .font(.system(size: 17, weight: .semibold)).foregroundColor(.black)
-                            .padding(.horizontal, 28).padding(.vertical, 14)
-                            .background(Color(hex: 0xF2F4F8))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(
+                LinearGradient(colors: [.clear, Color.vBackground.opacity(0.85), .vBackground],
+                               startPoint: .center, endPoint: .bottom)
+            )
+            .overlay(alignment: .bottomLeading) {
+                VStack(alignment: .leading, spacing: 14) {
+                    Label("\(show.channel.uppercased()) — \((show.isMovie ?? false) ? "FILM" : "SERIES")", systemImage: "bolt.fill")
+                        .font(.caption.weight(.bold)).tracking(3)
+                        .foregroundColor(.vAccent)
+                        .padding(.horizontal, 12).padding(.vertical, 8)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.vAccent.opacity(0.4), lineWidth: 1))
+                    Text(show.title.uppercased())
+                        .font(.vTitle(52)).tracking(3).foregroundColor(.white).lineLimit(3)
+                    HStack(spacing: 8) {
+                        Image(systemName: "star.fill").foregroundColor(.vAccent)
+                        Text(show.ratingText)
+                        Text(String(show.year))
+                        if let rt = show.runtime, !rt.isEmpty { Text(rt) }
+                        Text(show.genre).padding(.horizontal, 8).padding(.vertical, 3)
+                            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.vAccent.opacity(0.5), lineWidth: 1))
                     }
-                    Button { } label: {
-                        Image(systemName: "plus").font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white).frame(width: 52, height: 52)
-                            .overlay(Circle().stroke(Color.vMuted, lineWidth: 2))
+                    .font(.system(size: 15)).foregroundColor(.vMuted)
+                    Text(show.desc)
+                        .font(.system(size: 15)).foregroundColor(.vMuted).lineLimit(4)
+                        .fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 12) {
+                        Button { } label: {
+                            Label("Play", systemImage: "play.fill")
+                                .font(.system(size: 17, weight: .semibold)).foregroundColor(.black)
+                                .padding(.horizontal, 28).padding(.vertical, 14)
+                                .background(Color(hex: 0xF2F4F8))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        Button { } label: {
+                            Image(systemName: "plus").font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white).frame(width: 52, height: 52)
+                                .overlay(Circle().stroke(Color.vMuted, lineWidth: 2))
+                        }
                     }
                 }
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(20)
-        }
-        .frame(height: 520)
-        .clipped()
     }
 }
 
