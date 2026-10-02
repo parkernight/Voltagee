@@ -1,13 +1,5 @@
 import SwiftUI
 
-struct Show: Identifiable {
-    let id = UUID()
-    let name: String
-    let rating: String
-    let genre: String
-    let kind: String
-}
-
 struct Studio: Identifiable {
     let id = UUID()
     let name: String
@@ -22,27 +14,24 @@ private let studios = [
     Studio(name: "KINGDOM", tint: Color(hex: 0x2A2412), text: Color(hex: 0xC9A646)),
 ]
 
-private let trending = [
-    Show(name: "Paintings On The Wall", rating: "9", genre: "Drama", kind: "FILM"),
-    Show(name: "Ghosts", rating: "9.1", genre: "Horror", kind: "FILM"),
-    Show(name: "Monday Mourning", rating: "9", genre: "Drama", kind: "FILM"),
-]
-private let recommended = [
-    Show(name: "Mr Static", rating: "9", genre: "Horror", kind: "FILM"),
-    Show(name: "Ritual", rating: "9", genre: "Horror", kind: "FILM"),
-    Show(name: "Or Forever Hold Your Peace", rating: "9.1", genre: "Comedy", kind: "FILM"),
-]
-private let topRated = [
-    Show(name: "Suicide Note", rating: "9", genre: "Drama", kind: "FILM"),
-    Show(name: "180", rating: "9.1", genre: "Thriller", kind: "FILM"),
-    Show(name: "Ghosts", rating: "9.1", genre: "Horror", kind: "FILM"),
-]
+private let heroIds = [21, 31, 27]
 
 struct HomeView: View {
+    @StateObject private var store = ShowStore()
+
+    private var live: [Show] { store.shows.filter { $0.comingSoon != true } }
+    private var hero: Show? {
+        heroIds.compactMap { id in store.shows.first { $0.id == id } }.first
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
-                HeroView()
+                if let hero = hero {
+                    HeroView(show: hero)
+                } else {
+                    Color.vBackground.frame(height: 360)
+                }
                 HStack(spacing: 10) {
                     ForEach(studios) { s in
                         Text(s.name)
@@ -54,39 +43,60 @@ struct HomeView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                ShowRow(title: "Trending Now", shows: trending)
-                ShowRow(title: "Recommended For You", shows: recommended)
-                ShowRow(title: "Top Rated", shows: topRated)
+
+                if store.shows.isEmpty {
+                    Text(store.loadFailed ? "Couldn't load titles. Check your connection." : "Loading…")
+                        .foregroundColor(.vMuted)
+                        .frame(maxWidth: .infinity)
+                } else {
+                    ShowRow(title: "Trending Now", shows: Array(live.reversed().prefix(8)))
+                    ShowRow(title: "Recommended For You", shows: Array(live.prefix(8)))
+                    ShowRow(title: "Top Rated", shows: Array(live.sorted { $0.rating > $1.rating }.prefix(8)))
+                }
             }
             .padding(.bottom, 24)
         }
         .background(Color.vBackground.ignoresSafeArea())
+        .task { await store.load() }
     }
 }
 
 struct HeroView: View {
+    let show: Show
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            LinearGradient(colors: [Color(hex: 0x0B3A63), .vBackground],
-                           startPoint: .topTrailing, endPoint: .bottom)
+            Color.vBackground
+            AsyncImage(url: show.imageURL) { phase in
+                if let img = phase.image {
+                    img.resizable().scaledToFill()
+                } else {
+                    Color.clear
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: 520)
+            .clipped()
+            LinearGradient(colors: [.clear, Color.vBackground.opacity(0.85), .vBackground],
+                           startPoint: .center, endPoint: .bottom)
             VStack(alignment: .leading, spacing: 14) {
-                Label("NIGHT — FILM", systemImage: "bolt.fill")
+                Label("\(show.channel.uppercased()) — \((show.isMovie ?? false) ? "FILM" : "SERIES")", systemImage: "bolt.fill")
                     .font(.caption.weight(.bold)).tracking(3)
                     .foregroundColor(.vAccent)
                     .padding(.horizontal, 12).padding(.vertical, 8)
                     .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.vAccent.opacity(0.4), lineWidth: 1))
-                Text("MR\nSTATIC").font(.vTitle(64)).tracking(4).foregroundColor(.white)
+                Text(show.title.uppercased())
+                    .font(.vTitle(52)).tracking(3).foregroundColor(.white).lineLimit(3)
                 HStack(spacing: 8) {
                     Image(systemName: "star.fill").foregroundColor(.vAccent)
-                    Text("9")
-                    Text("2025")
-                    Text("9m 17s")
-                    Text("Horror").padding(.horizontal, 8).padding(.vertical, 3)
+                    Text(show.ratingText)
+                    Text(String(show.year))
+                    if let rt = show.runtime, !rt.isEmpty { Text(rt) }
+                    Text(show.genre).padding(.horizontal, 8).padding(.vertical, 3)
                         .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.vAccent.opacity(0.5), lineWidth: 1))
                 }
                 .font(.system(size: 15)).foregroundColor(.vMuted)
-                Text("A woman discovers a mysterious television broadcast airing a live feed of brutal crimes, forcing her into a desperate game of survival where looking away could mean certain death.")
-                    .font(.system(size: 15)).foregroundColor(.vMuted)
+                Text(show.desc)
+                    .font(.system(size: 15)).foregroundColor(.vMuted).lineLimit(4)
                 HStack(spacing: 12) {
                     Button { } label: {
                         Label("Play", systemImage: "play.fill")
@@ -104,12 +114,15 @@ struct HeroView: View {
             }
             .padding(20)
         }
+        .frame(height: 520)
+        .clipped()
     }
 }
 
 struct ShowRow: View {
     let title: String
     let shows: [Show]
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -130,22 +143,32 @@ struct ShowRow: View {
 
 struct ShowCard: View {
     let show: Show
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Placeholder until thumbnails load from Firebase
-            LinearGradient(colors: [Color(hex: 0x10243F), .black],
-                           startPoint: .topLeading, endPoint: .bottomTrailing)
-                .aspectRatio(16 / 9, contentMode: .fit)
+            ZStack {
+                Color.black
+                AsyncImage(url: show.imageURL) { phase in
+                    if let img = phase.image {
+                        img.resizable().scaledToFit()
+                    } else {
+                        LinearGradient(colors: [Color(hex: 0x10244A), .black],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing)
+                    }
+                }
+            }
+            .aspectRatio(3 / 2, contentMode: .fit)
+            .clipped()
             VStack(alignment: .leading, spacing: 6) {
-                Text(show.name).font(.system(size: 16, weight: .semibold))
+                Text(show.title).font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white).lineLimit(2)
                 HStack(spacing: 6) {
                     Image(systemName: "star.fill").foregroundColor(.vAccent)
-                    Text(show.rating)
+                    Text(show.ratingText)
                     Text("·")
                     Text(show.genre)
                     Text("·")
-                    Text(show.kind).fontWeight(.bold).foregroundColor(.vAccent)
+                    Text(show.kindLabel).fontWeight(.bold).foregroundColor(.vAccent)
                 }
                 .font(.system(size: 13)).foregroundColor(.vMuted)
             }
