@@ -33,6 +33,8 @@ struct Show: Codable, Identifiable {
     let seasons: [Season]?
 
     var imageURL: URL? { URL(string: image) }
+    var playableEpisodes: [Episode] { (seasons ?? []).flatMap { $0.episodes } }
+    var firstVideoURL: URL? { playableEpisodes.first.flatMap { $0.video }.flatMap { URL(string: $0) } }
     var kindLabel: String { (isMovie ?? false) ? "FILM" : "\(seasons?.count ?? 1)S" }
     var ratingText: String { rating == rating.rounded() ? String(Int(rating)) : String(rating) }
 }
@@ -52,4 +54,24 @@ final class ShowStore: ObservableObject {
             loadFailed = shows.isEmpty
         }
     }
+}
+
+final class MyListStore: ObservableObject {
+    @Published private(set) var ids: [Int]
+
+    init() {
+        ids = UserDefaults.standard.array(forKey: "voltage.myList") as? [Int] ?? []
+    }
+
+    func contains(_ id: Int) -> Bool { ids.contains(id) }
+
+    func toggle(_ id: Int) {
+        if let i = ids.firstIndex(of: id) { ids.remove(at: i) } else { ids.insert(id, at: 0) }
+        UserDefaults.standard.set(ids, forKey: "voltage.myList")
+    }
+}
+
+struct PlayItem: Identifiable {
+    let id = UUID()
+    let url: URL
 }

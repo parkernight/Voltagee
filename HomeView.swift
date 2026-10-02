@@ -17,7 +17,7 @@ private let studios = [
 private let heroIds = [21, 31, 27]
 
 struct HomeView: View {
-    @StateObject private var store = ShowStore()
+    @EnvironmentObject var store: ShowStore
 
     private var live: [Show] { store.shows.filter { $0.comingSoon != true } }
     private var hero: Show? {
@@ -25,6 +25,7 @@ struct HomeView: View {
     }
 
     var body: some View {
+        NavigationStack {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 if let hero = hero {
@@ -57,12 +58,15 @@ struct HomeView: View {
             .padding(.bottom, 24)
         }
         .background(Color.vBackground.ignoresSafeArea())
-        .task { await store.load() }
+        .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }
 
 struct HeroView: View {
     let show: Show
+    @EnvironmentObject var myList: MyListStore
+    @State private var playing: PlayItem?
 
     var body: some View {
         Color.vBackground
@@ -104,15 +108,15 @@ struct HeroView: View {
                         .font(.system(size: 15)).foregroundColor(.vMuted).lineLimit(4)
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(spacing: 12) {
-                        Button { } label: {
+                        Button { if let u = show.firstVideoURL { playing = PlayItem(url: u) } } label: {
                             Label("Play", systemImage: "play.fill")
                                 .font(.system(size: 17, weight: .semibold)).foregroundColor(.black)
                                 .padding(.horizontal, 28).padding(.vertical, 14)
                                 .background(Color(hex: 0xF2F4F8))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
-                        Button { } label: {
-                            Image(systemName: "plus").font(.system(size: 20, weight: .semibold))
+                        Button { myList.toggle(show.id) } label: {
+                            Image(systemName: myList.contains(show.id) ? "checkmark" : "plus").font(.system(size: 20, weight: .semibold))
                                 .foregroundColor(.white).frame(width: 52, height: 52)
                                 .overlay(Circle().stroke(Color.vMuted, lineWidth: 2))
                         }
@@ -121,6 +125,7 @@ struct HeroView: View {
                 .padding(20)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .fullScreenCover(item: $playing) { item in PlayerScreen(url: item.url) }
     }
 }
 
@@ -138,7 +143,12 @@ struct ShowRow: View {
             .padding(.horizontal, 16)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(shows) { ShowCard(show: $0).frame(width: 190) }
+                    ForEach(shows) { s in
+                        NavigationLink { DetailView(show: s) } label: {
+                            ShowCard(show: s).frame(width: 190)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
                 .padding(.horizontal, 16)
             }

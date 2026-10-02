@@ -18,24 +18,20 @@ struct VoltageApp: App {
 }
 
 struct RootView: View {
+    @StateObject private var store = ShowStore()
+    @StateObject private var myList = MyListStore()
+
     var body: some View {
         TabView {
             HomeView().tabItem { Label("HOME", systemImage: "house") }
-            PlaceholderView(title: "EXPLORE").tabItem { Label("EXPLORE", systemImage: "plus.viewfinder") }
-            PlaceholderView(title: "MY LIST").tabItem { Label("MY LIST", systemImage: "heart") }
-            PlaceholderView(title: "GALLERY").tabItem { Label("GALLERY", systemImage: "square.stack") }
-            PlaceholderView(title: "SETTINGS").tabItem { Label("SETTINGS", systemImage: "gearshape") }
+            ExploreView().tabItem { Label("EXPLORE", systemImage: "plus.viewfinder") }
+            MyListView().tabItem { Label("MY LIST", systemImage: "heart") }
+            GalleryView().tabItem { Label("GALLERY", systemImage: "square.stack") }
+            SettingsView().tabItem { Label("SETTINGS", systemImage: "gearshape") }
         }
         .tint(.vAccent)
-    }
-}
-
-struct PlaceholderView: View {
-    let title: String
-    var body: some View {
-        ZStack {
-            Color.vBackground.ignoresSafeArea()
-            Text(title).font(.vTitle(40)).tracking(4).foregroundColor(.white)
-        }
+        .environmentObject(store)
+        .environmentObject(myList)
+        .task { await store.load() }
     }
 }
