@@ -1,8 +1,12 @@
 import SwiftUI
+import FirebaseCore
 
 @main
 struct VoltageApp: App {
     init() {
+        if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
+            FirebaseApp.configure()
+        }
         let bar = UITabBarAppearance()
         bar.configureWithOpaqueBackground()
         bar.backgroundColor = UIColor(Color.vBackground)
@@ -19,19 +23,36 @@ struct VoltageApp: App {
 
 struct RootView: View {
     @StateObject private var store = ShowStore()
-    @StateObject private var myList = MyListStore()
+    @StateObject private var auth = AuthStore()
 
     var body: some View {
-        TabView {
-            HomeView().tabItem { Label("HOME", systemImage: "house") }
-            ExploreView().tabItem { Label("EXPLORE", systemImage: "plus.viewfinder") }
-            MyListView().tabItem { Label("MY LIST", systemImage: "heart") }
-            GalleryView().tabItem { Label("GALLERY", systemImage: "square.stack") }
-            SettingsView().tabItem { Label("SETTINGS", systemImage: "gearshape") }
+        Group {
+            if !auth.ready {
+                ZStack {
+                    Color(hex: 0x07090F).ignoresSafeArea()
+                    VStack(spacing: 14) {
+                        Text("STREAMING").font(.system(size: 13, weight: .medium)).tracking(8)
+                            .foregroundColor(Color(hex: 0x2E6F73))
+                        Text("VOLTAGE").font(.vTitle(56)).tracking(14).foregroundColor(.white)
+                    }
+                }
+            } else if auth.user == nil {
+                AuthView()
+            } else if !auth.profileChosen {
+                ProfilesView()
+            } else {
+                TabView {
+                    HomeView().tabItem { Label("HOME", systemImage: "house") }
+                    ExploreView().tabItem { Label("EXPLORE", systemImage: "plus.viewfinder") }
+                    MyListView().tabItem { Label("MY LIST", systemImage: "heart") }
+                    GalleryView().tabItem { Label("GALLERY", systemImage: "square.stack") }
+                    SettingsView().tabItem { Label("SETTINGS", systemImage: "gearshape") }
+                }
+                .tint(.vAccent)
+            }
         }
-        .tint(.vAccent)
         .environmentObject(store)
-        .environmentObject(myList)
+        .environmentObject(auth)
         .task { await store.load() }
     }
 }

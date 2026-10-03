@@ -17,6 +17,7 @@ struct ShowGrid: View {
 
 struct ExploreView: View {
     @EnvironmentObject var store: ShowStore
+    @EnvironmentObject var auth: AuthStore
     @State private var query = ""
     @State private var chip = "All"
     private let chips = ["All", "Nova", "Spark", "NoSleep", "Kingdom", "New"]
@@ -34,7 +35,7 @@ struct ExploreView: View {
             case "New": okChip = s.year >= 2025
             default: okChip = true
             }
-            return okQuery && okChip
+            return okQuery && okChip && auth.allows(s)
         }
     }
 
@@ -88,7 +89,7 @@ struct ExploreView: View {
 
 struct MyListView: View {
     @EnvironmentObject var store: ShowStore
-    @EnvironmentObject var myList: MyListStore
+    @EnvironmentObject var myList: AuthStore
 
     private var saved: [Show] {
         myList.ids.compactMap { id in store.shows.first { $0.id == id } }

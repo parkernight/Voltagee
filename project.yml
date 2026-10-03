@@ -1,6 +1,10 @@
 name: Voltage
 options:
   bundleIdPrefix: com.watchvoltage
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: 11.0.0
 targets:
   Voltage:
     type: application
@@ -8,7 +12,12 @@ targets:
     deploymentTarget: "16.0"
     sources:
       - path: .
-        excludes: ["*.yml", "*.yaml", "*.md", "*.zip", "*.py"]
+        excludes: ["*.yml", "*.yaml", "*.md", "*.zip", "*.py", "*.txt"]
+    dependencies:
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.watchvoltage.app
@@ -16,10 +25,11 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Voltage
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        OTHER_LDFLAGS: "-ObjC"
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_VERSION: "5.0"

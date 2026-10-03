@@ -18,10 +18,11 @@ private let heroIds = [21, 31, 27]
 
 struct HomeView: View {
     @EnvironmentObject var store: ShowStore
+    @EnvironmentObject var auth: AuthStore
 
-    private var live: [Show] { store.shows.filter { $0.comingSoon != true } }
+    private var live: [Show] { store.shows.filter { $0.comingSoon != true && auth.allows($0) } }
     private var hero: Show? {
-        heroIds.compactMap { id in store.shows.first { $0.id == id } }.first
+        heroIds.compactMap { id in live.first { $0.id == id } }.first ?? live.first
     }
 
     var body: some View {
@@ -65,7 +66,7 @@ struct HomeView: View {
 
 struct HeroView: View {
     let show: Show
-    @EnvironmentObject var myList: MyListStore
+    @EnvironmentObject var myList: AuthStore
     @State private var playing: PlayItem?
 
     var body: some View {
@@ -115,7 +116,7 @@ struct HeroView: View {
                                 .background(Color(hex: 0xF2F4F8))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
-                        Button { myList.toggle(show.id) } label: {
+                        Button { myList.toggle(show.id, title: show.title) } label: {
                             Image(systemName: myList.contains(show.id) ? "checkmark" : "plus").font(.system(size: 20, weight: .semibold))
                                 .foregroundColor(.white).frame(width: 52, height: 52)
                                 .overlay(Circle().stroke(Color.vMuted, lineWidth: 2))
