@@ -22,7 +22,7 @@ struct AuthView: View {
             ScrollView {
                 VStack(spacing: 18) {
                     Text("VOLTAGE").font(.vTitle(54)).tracking(12).foregroundColor(Color(hex: 0xD6E8FF))
-                    Text("STREAM EVERYTHING").font(.system(size: 13, weight: .medium)).tracking(5)
+                    Text("STREAM EVERYTHING").font(.outfit(13, .medium)).tracking(5)
                         .foregroundColor(Color(hex: 0x3B7191))
 
                     HStack(spacing: 0) {
@@ -59,12 +59,12 @@ struct AuthView: View {
                         HStack {
                             Spacer()
                             Button("Forgot password?") { forgot() }
-                                .font(.system(size: 14)).foregroundColor(Color(hex: 0x3B7191))
+                                .font(.outfit(14)).foregroundColor(Color(hex: 0x3B7191))
                         }
                     }
 
                     if let note = note {
-                        Text(note).font(.system(size: 14))
+                        Text(note).font(.outfit(14))
                             .foregroundColor(noteIsError ? Color(hex: 0xFF6B6B) : Color(hex: 0x2EE6B8))
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -72,7 +72,7 @@ struct AuthView: View {
                     Button { submit() } label: {
                         Group {
                             if busy { ProgressView().tint(.black) }
-                            else { Text(creating ? "CREATE ACCOUNT" : "SIGN IN").font(.system(size: 17, weight: .heavy)).tracking(3) }
+                            else { Text(creating ? "CREATE ACCOUNT" : "SIGN IN").font(.outfit(17, .heavy)).tracking(3) }
                         }
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity, minHeight: 58)
@@ -94,7 +94,7 @@ struct AuthView: View {
 
     private func tab(_ title: String, on: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title).font(.system(size: 14, weight: .bold)).tracking(2)
+            Text(title).font(.outfit(14, .bold)).tracking(2)
                 .foregroundColor(on ? .black : .vMuted)
                 .frame(maxWidth: .infinity, minHeight: 50)
                 .background(on ? blue : Color.clear)
@@ -103,7 +103,7 @@ struct AuthView: View {
 
     private func field<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
         content()
-            .font(.system(size: 18)).foregroundColor(.white)
+            .font(.outfit(18)).foregroundColor(.white)
             .padding(.horizontal, 18).frame(minHeight: 58)
             .background(fieldBg)
             .clipShape(RoundedRectangle(cornerRadius: 14))

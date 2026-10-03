@@ -60,7 +60,7 @@ struct ExploreView: View {
                             ForEach(chips, id: \.self) { c in
                                 Button { chip = c } label: {
                                     Text(c)
-                                        .font(.system(size: 15, weight: .medium))
+                                        .font(.outfit(15, .medium))
                                         .foregroundColor(chip == c ? .white : .vMuted)
                                         .padding(.horizontal, 16).padding(.vertical, 8)
                                         .background(chip == c ? Color(hex: 0x0E3A78) : Color.clear)
@@ -100,8 +100,8 @@ struct MyListView: View {
             ScrollView {
                 if saved.isEmpty {
                     VStack(spacing: 14) {
-                        Image(systemName: "heart").font(.system(size: 54)).foregroundColor(.vAccent)
-                        Text("Your list is empty").font(.system(size: 20, weight: .semibold)).foregroundColor(.vMuted)
+                        Image(systemName: "heart").font(.outfit(54)).foregroundColor(.vAccent)
+                        Text("Your list is empty").font(.outfit(20, .semibold)).foregroundColor(.vMuted)
                         Text("Save shows by tapping + on any title").foregroundColor(.vMuted)
                     }
                     .frame(maxWidth: .infinity).padding(.top, 140)

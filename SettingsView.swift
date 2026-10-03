@@ -7,7 +7,7 @@ struct SettingsView: View {
 
     private func card<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(.system(size: 13, weight: .bold)).tracking(4).foregroundColor(.vMuted)
+            Text(title).font(.outfit(13, .bold)).tracking(4).foregroundColor(.vMuted)
             VStack(alignment: .leading, spacing: 14) { content() }
                 .padding(18)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -25,7 +25,7 @@ struct SettingsView: View {
 
                 card("ACCOUNT") {
                     if let n = auth.user?.displayName, !n.isEmpty {
-                        Text(n).font(.system(size: 17, weight: .semibold)).foregroundColor(.white)
+                        Text(n).font(.outfit(17, .semibold)).foregroundColor(.white)
                     }
                     Text(auth.user?.email ?? "").foregroundColor(.vMuted)
                 }
@@ -42,15 +42,15 @@ struct SettingsView: View {
                 }
                 card("ACCOUNT ACTIONS") {
                     Button { auth.signOut() } label: {
-                        Text("Sign Out").font(.system(size: 16, weight: .semibold)).foregroundColor(Color(hex: 0xFF4D6D))
+                        Text("Sign Out").font(.outfit(16, .semibold)).foregroundColor(Color(hex: 0xFF4D6D))
                     }
                     Button { confirmDelete = true } label: {
-                        Text("Delete Account").font(.system(size: 16)).foregroundColor(.vMuted)
+                        Text("Delete Account").font(.outfit(16)).foregroundColor(.vMuted)
                     }
-                    if let note = note { Text(note).font(.system(size: 13)).foregroundColor(Color(hex: 0xFF6B6B)) }
+                    if let note = note { Text(note).font(.outfit(13)).foregroundColor(Color(hex: 0xFF6B6B)) }
                 }
                 Text("© 2025 VOLTAGE Streaming · Made by Parker Night")
-                    .font(.system(size: 12)).foregroundColor(.vMuted)
+                    .font(.outfit(12)).foregroundColor(.vMuted)
             }
             .padding(16)
         }

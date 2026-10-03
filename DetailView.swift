@@ -14,7 +14,7 @@ struct PlayerScreen: View {
             }
             Button { dismiss() } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .bold)).foregroundColor(.white)
+                    .font(.outfit(16, .bold)).foregroundColor(.white)
                     .frame(width: 40, height: 40)
                     .background(Color.black.opacity(0.55)).clipShape(Circle())
             }
@@ -66,47 +66,47 @@ struct DetailView: View {
                         Text(show.genre).padding(.horizontal, 8).padding(.vertical, 3)
                             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.vAccent.opacity(0.5), lineWidth: 1))
                     }
-                    .font(.system(size: 15)).foregroundColor(.vMuted)
+                    .font(.outfit(15)).foregroundColor(.vMuted)
 
                     if show.comingSoon == true {
                         Text("Premieres \(show.releaseDate ?? "soon")")
-                            .font(.system(size: 17, weight: .semibold)).foregroundColor(.vAccent)
+                            .font(.outfit(17, .semibold)).foregroundColor(.vAccent)
                     } else {
                         HStack(spacing: 12) {
                             Button { play(show.firstVideoURL) } label: {
                                 Label("Play", systemImage: "play.fill")
-                                    .font(.system(size: 17, weight: .semibold)).foregroundColor(.black)
+                                    .font(.outfit(17, .semibold)).foregroundColor(.black)
                                     .padding(.horizontal, 28).padding(.vertical, 14)
                                     .background(Color(hex: 0xF2F4F8))
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                             Button { myList.toggle(show.id, title: show.title) } label: {
                                 Image(systemName: myList.contains(show.id) ? "checkmark" : "plus")
-                                    .font(.system(size: 20, weight: .semibold))
+                                    .font(.outfit(20, .semibold))
                                     .foregroundColor(.white).frame(width: 52, height: 52)
                                     .overlay(Circle().stroke(Color.vMuted, lineWidth: 2))
                             }
                         }
                     }
 
-                    Text(show.desc).font(.system(size: 16)).foregroundColor(.vMuted)
+                    Text(show.desc).font(.outfit(16)).foregroundColor(.vMuted)
                     if let c = show.creator, !c.isEmpty {
-                        Text("Creator: \(c)").font(.system(size: 14)).foregroundColor(.vMuted)
+                        Text("Creator: \(c)").font(.outfit(14)).foregroundColor(.vMuted)
                     }
 
                     if show.isMovie != true && show.comingSoon != true {
-                        Text("EPISODES").font(.system(size: 20, weight: .bold)).foregroundColor(.white)
+                        Text("EPISODES").font(.outfit(20, .bold)).foregroundColor(.white)
                             .padding(.top, 8)
                         ForEach(show.playableEpisodes) { ep in
                             Button { play(ep.video.flatMap { URL(string: $0) }) } label: {
                                 HStack(spacing: 12) {
                                     Image(systemName: "play.circle.fill")
-                                        .font(.system(size: 28)).foregroundColor(.vAccent)
+                                        .font(.outfit(28)).foregroundColor(.vAccent)
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text("\(ep.num). \(ep.title)")
-                                            .font(.system(size: 16, weight: .semibold)).foregroundColor(.white)
+                                            .font(.outfit(16, .semibold)).foregroundColor(.white)
                                         if let d = ep.duration, !d.isEmpty {
-                                            Text(d).font(.system(size: 13)).foregroundColor(.vMuted)
+                                            Text(d).font(.outfit(13)).foregroundColor(.vMuted)
                                         }
                                     }
                                     Spacer()

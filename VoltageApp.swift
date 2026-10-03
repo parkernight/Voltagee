@@ -1,9 +1,15 @@
 import SwiftUI
 import FirebaseCore
+import CoreText
 
 @main
 struct VoltageApp: App {
     init() {
+        for ext in ["ttf", "otf"] {
+            for url in Bundle.main.urls(forResourcesWithExtension: ext, subdirectory: nil) ?? [] {
+                CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+            }
+        }
         if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
             FirebaseApp.configure()
         }
@@ -31,7 +37,7 @@ struct RootView: View {
                 ZStack {
                     Color(hex: 0x07090F).ignoresSafeArea()
                     VStack(spacing: 14) {
-                        Text("STREAMING").font(.system(size: 13, weight: .medium)).tracking(8)
+                        Text("STREAMING").font(.outfit(13, .medium)).tracking(8)
                             .foregroundColor(Color(hex: 0x2E6F73))
                         Text("VOLTAGE").font(.vTitle(56)).tracking(14).foregroundColor(.white)
                     }

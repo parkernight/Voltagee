@@ -14,8 +14,12 @@ extension Color {
 }
 
 extension Font {
-    // Stand-in for Bebas Neue until the font file is added
+    // Bebas Neue: the display font from watchvoltage.com
     static func vTitle(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .heavy).width(.condensed)
+        .custom("BebasNeue-Regular", size: size)
+    }
+    // Outfit: the body font from watchvoltage.com
+    static func outfit(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
+        .custom("Outfit", size: size).weight(weight)
     }
 }

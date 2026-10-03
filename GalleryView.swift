@@ -8,7 +8,7 @@ struct GalleryView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 Text("GALLERY OF THE KINGDOM")
-                    .font(.system(size: 18, weight: .bold)).tracking(5).foregroundColor(.white)
+                    .font(.outfit(18, .bold)).tracking(5).foregroundColor(.white)
                 Rectangle().fill(Color(hex: 0x0E3A78)).frame(height: 2)
                 LazyVGrid(columns: cols, spacing: 12) {
                     ForEach(galleryItems) { item in
@@ -28,7 +28,7 @@ struct GalleryView: View {
                 }
                 Button { selected = nil } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 16, weight: .bold)).foregroundColor(.white)
+                        .font(.outfit(16, .bold)).foregroundColor(.white)
                         .frame(width: 40, height: 40)
                         .background(Color.white.opacity(0.18)).clipShape(Circle())
                 }
@@ -52,11 +52,11 @@ struct GalleryCard: View {
             .frame(height: 210)
             .clipped()
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.name).font(.system(size: 16, weight: .bold).italic())
+                Text(item.name).font(.outfit(16, .bold).italic())
                     .foregroundColor(.white).lineLimit(1)
-                Text("\(item.medium) · #\(item.id)").font(.system(size: 12).italic())
+                Text("\(item.medium) · #\(item.id)").font(.outfit(12).italic())
                     .foregroundColor(.vMuted)
-                Text("by \(item.artist)").font(.system(size: 13)).foregroundColor(.vAccent)
+                Text("by \(item.artist)").font(.outfit(13)).foregroundColor(.vAccent)
             }
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)

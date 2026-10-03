@@ -13,7 +13,7 @@ struct AvatarView: View {
                 }
             } else {
                 Text(String(profile.name.prefix(1)).uppercased())
-                    .font(.system(size: size * 0.45, weight: .heavy)).foregroundColor(.white)
+                    .font(.outfit(size * 0.45, .heavy)).foregroundColor(.white)
             }
         }
         .frame(width: size, height: size)
@@ -47,25 +47,21 @@ struct ProfilesView: View {
     var body: some View {
         ZStack {
             VoltageBackdrop()
-            GeometryReader { geo in
-                ScrollView {
-                    VStack(spacing: 20) {
-                        Text("VOLTAGE").font(.vTitle(70)).tracking(16).foregroundColor(.white)
-                            .lineLimit(1).minimumScaleFactor(0.5).padding(.horizontal, 20)
-                        Text("WELCOME TO THE KINGDOM").font(.vTitle(21)).tracking(9).foregroundColor(.white)
-                            .lineLimit(1).minimumScaleFactor(0.5).padding(.horizontal, 20)
-                        Text("WHO'S WATCHING?").font(.system(size: 14, weight: .semibold)).tracking(7)
-                            .foregroundColor(Color(hex: 0x9AA3B5)).padding(.top, 28).padding(.bottom, 6)
-                        ForEach(rows.indices, id: \.self) { i in
-                            HStack(alignment: .top, spacing: 22) {
-                                ForEach(rows[i]) { cell in cellView(cell) }
-                            }
-                        }
+            VStack(spacing: 20) {
+                Text("VOLTAGE").font(.vTitle(70)).tracking(16).foregroundColor(.white)
+                    .lineLimit(1).minimumScaleFactor(0.5).padding(.horizontal, 20)
+                Text("WELCOME TO THE KINGDOM").font(.vTitle(21)).tracking(9).foregroundColor(.white)
+                    .lineLimit(1).minimumScaleFactor(0.5).padding(.horizontal, 20)
+                Text("WHO'S WATCHING?").font(.outfit(14, .semibold)).tracking(7)
+                    .foregroundColor(Color(hex: 0x9AA3B5)).padding(.top, 24).padding(.bottom, 6)
+                ForEach(rows.indices, id: \.self) { i in
+                    HStack(alignment: .top, spacing: 22) {
+                        ForEach(rows[i]) { cell in cellView(cell) }
                     }
-                    .frame(maxWidth: .infinity, minHeight: geo.size.height)
-                    .padding(.vertical, 40)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.bottom, 70)
         }
         .sheet(isPresented: $adding) { AddProfileSheet().environmentObject(auth) }
     }
@@ -87,18 +83,18 @@ struct ProfilesView: View {
                         .stroke(active ? Color(hex: 0x4FB3E0) : Color.clear, lineWidth: 3))
             }
             .buttonStyle(.plain)
-            Text(p.name).font(.system(size: 16, weight: .medium)).foregroundColor(Color(hex: 0x9AA3B5))
+            Text(p.name).font(.outfit(16, .medium)).foregroundColor(Color(hex: 0x9AA3B5))
             if active {
-                Text("● Active").font(.system(size: 13)).foregroundColor(Color(hex: 0x4FB3E0))
+                Text("● Active").font(.outfit(13)).foregroundColor(Color(hex: 0x4FB3E0))
             }
             if p.isKids {
-                Text("KIDS").font(.system(size: 10, weight: .bold)).foregroundColor(.black)
+                Text("KIDS").font(.outfit(10, .bold)).foregroundColor(.black)
                     .padding(.horizontal, 6).padding(.vertical, 2)
                     .background(Color.vAccent).clipShape(Capsule())
             }
             if active && p.id != "guest" {
                 Button { auth.removeProfile(p) } label: {
-                    Text("remove").font(.system(size: 13)).underline().foregroundColor(Color(hex: 0x4A5F8A))
+                    Text("remove").font(.outfit(13)).underline().foregroundColor(Color(hex: 0x4A5F8A))
                 }
             }
         }
@@ -113,8 +109,8 @@ struct ProfilesView: View {
                     .foregroundColor(Color(hex: 0x2A3556))
                     .background(Color.white.opacity(0.03))
                     .frame(width: 96, height: 96)
-                    .overlay(Image(systemName: "plus").font(.system(size: 26)).foregroundColor(Color(hex: 0x3A4A75)))
-                Text("Add Profile").font(.system(size: 16, weight: .medium)).foregroundColor(Color(hex: 0x9AA3B5))
+                    .overlay(Image(systemName: "plus").font(.outfit(26)).foregroundColor(Color(hex: 0x3A4A75)))
+                Text("Add Profile").font(.outfit(16, .medium)).foregroundColor(Color(hex: 0x9AA3B5))
             }
             .frame(width: 100)
         }
@@ -138,7 +134,7 @@ struct AddProfileSheet: View {
     ]
 
     private func label(_ s: String) -> some View {
-        Text(s).font(.system(size: 13, weight: .bold)).tracking(5).foregroundColor(.vMuted)
+        Text(s).font(.outfit(13, .bold)).tracking(5).foregroundColor(.vMuted)
     }
 
     var body: some View {
@@ -164,7 +160,7 @@ struct AddProfileSheet: View {
                         Button { image = nil } label: {
                             ZStack {
                                 LinearGradient(colors: [Color(hex: 0x1A6CF5), Color(hex: 0x00D4FF)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                                Text("COLOR").font(.system(size: 12, weight: .bold)).foregroundColor(.white)
+                                Text("COLOR").font(.outfit(12, .bold)).foregroundColor(.white)
                             }
                             .frame(width: 64, height: 64).clipShape(RoundedRectangle(cornerRadius: 12))
                             .overlay(RoundedRectangle(cornerRadius: 12).stroke(image == nil ? Color.vAccent : Color.clear, lineWidth: 3))
@@ -199,7 +195,7 @@ struct AddProfileSheet: View {
                         auth.addProfile(name: n, color: color, image: image, isKids: kids)
                         dismiss()
                     } label: {
-                        Text("Create Profile").font(.system(size: 17, weight: .semibold)).foregroundColor(.white)
+                        Text("Create Profile").font(.outfit(17, .semibold)).foregroundColor(.white)
                             .frame(maxWidth: .infinity, minHeight: 56)
                             .background(Color(hex: 0x0F2A57)).clipShape(RoundedRectangle(cornerRadius: 14))
                     }
