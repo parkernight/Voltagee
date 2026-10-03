@@ -24,68 +24,101 @@ struct AvatarView: View {
 struct ProfilesView: View {
     @EnvironmentObject var auth: AuthStore
     @State private var adding = false
-    private let cols = [GridItem(.adaptive(minimum: 100), spacing: 20)]
+
+    private enum Cell: Identifiable {
+        case profile(Profile)
+        case add
+        var id: String {
+            switch self {
+            case .profile(let p): return p.id
+            case .add: return "add"
+            }
+        }
+    }
+
+    private var cells: [Cell] {
+        auth.profiles.map { Cell.profile($0) } + (auth.profiles.count < 6 ? [Cell.add] : [])
+    }
+
+    private var rows: [[Cell]] {
+        stride(from: 0, to: cells.count, by: 3).map { Array(cells[$0..<min($0 + 3, cells.count)]) }
+    }
 
     var body: some View {
         ZStack {
-            LinearGradient(colors: [Color(hex: 0x0C1730), Color(hex: 0x050A14)],
-                           startPoint: .top, endPoint: .bottom).ignoresSafeArea()
-            ScrollView {
-                VStack(spacing: 22) {
-                    Text("VOLTAGE").font(.vTitle(64)).tracking(14).foregroundColor(.white).padding(.top, 60)
-                    Text("WELCOME TO THE KINGDOM").font(.vTitle(20)).tracking(8).foregroundColor(.white)
-                    Text("WHO'S WATCHING?").font(.system(size: 14, weight: .semibold)).tracking(6)
-                        .foregroundColor(.vMuted).padding(.top, 20)
-
-                    LazyVGrid(columns: cols, spacing: 26) {
-                        ForEach(auth.profiles) { p in
-                            Button { auth.selectProfile(p.id) } label: {
-                                VStack(spacing: 8) {
-                                    AvatarView(profile: p)
-                                        .overlay(RoundedRectangle(cornerRadius: 18)
-                                            .stroke(p.id == auth.activeProfileId ? Color.vAccent : Color.clear, lineWidth: 3))
-                                    Text(p.name).font(.system(size: 16, weight: .medium)).foregroundColor(.vMuted)
-                                    if p.id == auth.activeProfileId {
-                                        Text("● Active").font(.system(size: 13)).foregroundColor(.vAccent)
-                                    }
-                                    if p.isKids {
-                                        Text("KIDS").font(.system(size: 10, weight: .bold)).foregroundColor(.black)
-                                            .padding(.horizontal, 6).padding(.vertical, 2)
-                                            .background(Color.vAccent).clipShape(Capsule())
-                                    }
-                                }
+            VoltageBackdrop()
+            GeometryReader { geo in
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Text("VOLTAGE").font(.vTitle(70)).tracking(16).foregroundColor(.white)
+                            .lineLimit(1).minimumScaleFactor(0.5).padding(.horizontal, 20)
+                        Text("WELCOME TO THE KINGDOM").font(.vTitle(21)).tracking(9).foregroundColor(.white)
+                            .lineLimit(1).minimumScaleFactor(0.5).padding(.horizontal, 20)
+                        Text("WHO'S WATCHING?").font(.system(size: 14, weight: .semibold)).tracking(7)
+                            .foregroundColor(Color(hex: 0x9AA3B5)).padding(.top, 28).padding(.bottom, 6)
+                        ForEach(rows.indices, id: \.self) { i in
+                            HStack(alignment: .top, spacing: 22) {
+                                ForEach(rows[i]) { cell in cellView(cell) }
                             }
-                            .buttonStyle(.plain)
-                            .contextMenu {
-                                if p.id != "guest" {
-                                    Button(role: .destructive) { auth.removeProfile(p) } label: {
-                                        Label("Remove profile", systemImage: "trash")
-                                    }
-                                }
-                            }
-                        }
-                        if auth.profiles.count < 6 {
-                            Button { adding = true } label: {
-                                VStack(spacing: 8) {
-                                    RoundedRectangle(cornerRadius: 18)
-                                        .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [6]))
-                                        .foregroundColor(Color.vBorder)
-                                        .frame(width: 96, height: 96)
-                                        .overlay(Image(systemName: "plus").font(.system(size: 26)).foregroundColor(.vMuted))
-                                    Text("Add Profile").font(.system(size: 16, weight: .medium)).foregroundColor(.vMuted)
-                                }
-                            }
-                            .buttonStyle(.plain)
                         }
                     }
-                    .padding(.horizontal, 24)
-                    Text("Press and hold a profile to remove it").font(.system(size: 12)).foregroundColor(.vMuted)
-                        .padding(.top, 8)
+                    .frame(maxWidth: .infinity, minHeight: geo.size.height)
+                    .padding(.vertical, 40)
                 }
-                .padding(.bottom, 40)
             }
         }
         .sheet(isPresented: $adding) { AddProfileSheet().environmentObject(auth) }
+    }
+
+    @ViewBuilder
+    private func cellView(_ cell: Cell) -> some View {
+        switch cell {
+        case .profile(let p): profileTile(p)
+        case .add: addTile
+        }
+    }
+
+    private func profileTile(_ p: Profile) -> some View {
+        let active = p.id == auth.activeProfileId
+        return VStack(spacing: 8) {
+            Button { auth.selectProfile(p.id) } label: {
+                AvatarView(profile: p, size: 96)
+                    .overlay(RoundedRectangle(cornerRadius: 18)
+                        .stroke(active ? Color(hex: 0x4FB3E0) : Color.clear, lineWidth: 3))
+            }
+            .buttonStyle(.plain)
+            Text(p.name).font(.system(size: 16, weight: .medium)).foregroundColor(Color(hex: 0x9AA3B5))
+            if active {
+                Text("● Active").font(.system(size: 13)).foregroundColor(Color(hex: 0x4FB3E0))
+            }
+            if p.isKids {
+                Text("KIDS").font(.system(size: 10, weight: .bold)).foregroundColor(.black)
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(Color.vAccent).clipShape(Capsule())
+            }
+            if active && p.id != "guest" {
+                Button { auth.removeProfile(p) } label: {
+                    Text("remove").font(.system(size: 13)).underline().foregroundColor(Color(hex: 0x4A5F8A))
+                }
+            }
+        }
+        .frame(width: 100)
+    }
+
+    private var addTile: some View {
+        Button { adding = true } label: {
+            VStack(spacing: 8) {
+                RoundedRectangle(cornerRadius: 18)
+                    .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [6]))
+                    .foregroundColor(Color(hex: 0x2A3556))
+                    .background(Color.white.opacity(0.03))
+                    .frame(width: 96, height: 96)
+                    .overlay(Image(systemName: "plus").font(.system(size: 26)).foregroundColor(Color(hex: 0x3A4A75)))
+                Text("Add Profile").font(.system(size: 16, weight: .medium)).foregroundColor(Color(hex: 0x9AA3B5))
+            }
+            .frame(width: 100)
+        }
+        .buttonStyle(.plain)
     }
 }
 
